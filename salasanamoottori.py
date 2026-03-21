@@ -1,6 +1,6 @@
 # ohjelma lukee kotimaisten kielenten keskuksen julkaisemaa sanalistaa
 # Sanatietue koostuu seuraavista tiedoista: 1) hakusana, 2) homonymia, 3) sanaluokka ja 4) taivutus.
-# stv9 - 2026-03-21
+# TV - 2026-03-21
 
 # /// script
 # dependencies = [
