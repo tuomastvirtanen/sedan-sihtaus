@@ -1,7 +1,7 @@
 
 # Sedan-sihtaus: Salalausegeneraattori
 
-Tämä onython-pohjainen työkalu vahvojen, suomenkielisten salalauseiden generointiin. Ohjelma hyödyntää Kotuksen nykysuomen sanalistaa ja laskee jokaiselle lauseelle teoreettisen entropian (bitit).
+Täm on Python-pohjainen työkalu vahvojen, suomenkielisten salalauseiden generointiin. Ohjelma hyödyntää Kotuksen nykysuomen sanalistaa ja laskee jokaiselle lauseelle teoreettisen entropian (bitit).
 
 ## Ominaisuudet
 * **Dynaaminen sanasto**: Suodattaa sanat pituuden ja skandien mukaan.
