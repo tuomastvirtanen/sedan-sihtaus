@@ -205,3 +205,19 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# --- Käyttöjärjestelmäkohtaiset lisäykset ---
+
+# Mac-roskat
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows-roskat
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+# uv-työkalun välimuisti (jos käytät sitä projektikohtaisesti)
+.uv/
