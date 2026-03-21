@@ -94,16 +94,16 @@ def main():
                 
         valinta = input("\nValitse numero (1-15) kopioitavaksi tai 'e' poistuaksesi: ")
         if valinta.isdigit() and 1 <= int(valinta) <= 15:
-            valittu_passu = ehdotukset[int(valinta)-1]
-            pyperclip.copy(valittu_passu)
-            print(f"\n*** '{valittu_passu}' kopioitu leikepöydälle! ***")
+            valittu_salalause = ehdotukset[int(valinta)-1]
+            pyperclip.copy(valittu_salalause)
+            print(f"\n*** '{valittu_salalause}' kopioitu leikepöydälle! ***")
     else:
         while True:
-            passu = generoi_salalause(sanalista, sanojen_lkm)
-            print(f"\nEhdotus: {passu}")
+            salalause = generoi_salalause(sanalista, sanojen_lkm)
+            print(f"\nEhdotus: {salalause}")
             print(f"Vahvuus: {vahvuus_teksti} ({int(entropia)} bittiä)")
             if input("Kelpaako ja kopioidaanko? (k/e): ").lower() == 'k':
-                pyperclip.copy(passu)
+                pyperclip.copy(salalause)
                 print("\n*** Kopioitu leikepöydälle! ***")
                 break
 
