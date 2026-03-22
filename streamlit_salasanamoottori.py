@@ -110,7 +110,7 @@ with st.sidebar:
     salli_skandit = skandit_input == "Kyllä"
 
     oletus_lkm = 4 if salli_skandit else 5
-    sanojen_lkm = st.slider("Sanojen määrä", 3, 12, oletus_lkm)
+    sanojen_lkm = st.slider("Sanojen määrä", 2, 12, oletus_lkm)
 
     with st.expander("Sanan pituus"):
         min_p = st.number_input("Min", 3, 20, 6)
