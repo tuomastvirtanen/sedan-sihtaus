@@ -19,7 +19,6 @@ def lue_sanalista_tiedostosta(tiedostonimi, min_len, max_len, salli_skandit):
     hakusanat = []
     skandit_set = set("åäöÅÄÖ")
 
-    # Varmistetaan polku Streamlit Cloudissa
     current_dir = os.path.dirname(__file__)
     file_path = os.path.join(current_dir, tiedostonimi)
 
@@ -30,13 +29,10 @@ def lue_sanalista_tiedostosta(tiedostonimi, min_len, max_len, salli_skandit):
                 if not osat:
                     continue
                 sana = osat[0]
-                # Suodatus: pituus
                 if not (min_len <= len(sana) <= max_len):
                     continue
-                # Suodatus: skandit
                 if not salli_skandit and any(c in skandit_set for c in sana):
                     continue
-                # Suodatus: vain kirjaimet
                 if not sana.isalpha():
                     continue
                 hakusanat.append(sana)
@@ -65,7 +61,7 @@ def arvioi_vahvuus(entropia):
 
 
 def laske_vaikeuskerroin(sana):
-    """Laskee sanan vaikeuden 0-100 välillä."""
+    """Laskee sanan vaikeuden 0-100 välillä suodatusta varten."""
     score = len(sana) * 2
     if len(sana) > 12:
         score += 15
@@ -148,7 +144,7 @@ raakasanalista = lue_sanalista_tiedostosta(
 )
 
 if raakasanalista:
-    # 2. Suodata vaikeusasteen mukaan
+    # 2. Suodata vaikeusasteen mukaan (vaikuttaa entropiaan ja sanavalintoihin)
     sanalista = [
         s for s in raakasanalista if min_vk <= laske_vaikeuskerroin(s) <= max_vk
     ]
@@ -157,7 +153,7 @@ if raakasanalista:
         st.error(f"Ei sanoja vaikeusrajoilla {min_vk}-{max_vk}.")
         st.stop()
 
-    # 3. Tunniste-tila suodatus (Foneettisesti selkeät sanat)
+    # 3. Tunniste-tila suodatus
     vaikeat_foneettiset = set("bcfgqwxzåäö")
     tunniste_lista = [
         s
@@ -182,31 +178,14 @@ if raakasanalista:
             for e in ehdotukset:
                 cols = st.columns([4, 1])
                 cols[0].code(e, language=None)
-
-                # Lasketaan keskiarvo kerran
-                sanat = e.split("-")
-                vk_avg = sum(laske_vaikeuskerroin(s) for s in sanat) / len(sanat)
-                vk_pyoreistys = round(vk_avg)
-
-                # Määritellään sanallinen arvio
-                if vk_pyoreistys < 30:
-                    vk_teksti = "Helppo"
-                elif vk_pyoreistys < 50:
-                    vk_teksti = "Normaali"
-                else:
-                    vk_teksti = "Haastava"
-
-                # Tulostetaan kerralla selkeästi
-                cols[1].write(f"**VK: {vk_pyoreistys}**")
-                cols[1].caption(vk_teksti)
+                # Näytetään vain pituus tuloksissa selkeyden vuoksi
+                cols[1].caption(f"{len(e)} merk.")
 
     with tab2:
         if len(tunniste_lista) < 10:
             st.warning("Liian vähän sanoja tunnisteille näillä rajoilla.")
         else:
-            # Uusi valinta sanojen määrälle tunniste-tilassa
             t_sanojen_lkm = st.slider("Tunnisteen sanojen määrä", 2, 5, 3)
-
             t_entropia = laske_entropia(len(tunniste_lista), t_sanojen_lkm)
             vahvuus_t, ikoni_t = arvioi_vahvuus(t_entropia)
 
@@ -218,7 +197,6 @@ if raakasanalista:
                 tunnisteet = generoi_salalauseet(tunniste_lista, t_sanojen_lkm, 10)
                 st.write("---")
                 for t in tunnisteet:
-                    # Näytetään tunnisteet vihreällä laatikolla
                     st.success(f"**{t}**")
 
 st.markdown("---")
