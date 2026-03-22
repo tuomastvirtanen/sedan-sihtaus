@@ -1,16 +1,25 @@
-# Sedan-sihtaus: Salalausegeneraattori
+# 🔐 Sedan-sihtaus: Salalausegeneraattori
 
-Tämä on Python-pohjainen työkalu vahvojen, suomenkielisten salalauseiden generointiin. Ohjelma hyödyntää Kotuksen nykysuomen sanalistaa ja laskee jokaiselle lauseelle teoreettisen entropian (bitit).
+Tämä on Python-pohjainen työkalu vahvojen, suomenkielisten salalauseiden generointiin. Ohjelma hyödyntää Kotuksen nykysuomen sanalistaa ja tarjoaa matemaattisesti perustellun arvion salasanan murtovarmuudesta (entropia).
 
-## Ominaisuudet
-* **Dynaaminen sanasto**: Lataa sanalistan suoraan Kotuksen palvelimelta ja suodattaa sanat pituuden mukaan.
-* **Entropialaskenta**: Arvioi salasanan vahvuuden (Heikko -> Erit. vahva).
-* **Leikepöytätuki**: Kopioi valitun salalauseen automaattisesti (`pyperclip`).
-* **Dynaaminen muotoilu**: Tulostaa 15 vaihtoehdon listan siistissä taulukossa.
+## 🌍 Selainversio
+Sovellus on ajettavissa suoraan selaimessa (myös mobiilissa):
+👉 **[salasanamoottori.streamlit.app](https://salasanamoottori.streamlit.app)**
 
-## Käyttöönotto (uv)
+---
 
-Ohjelma on optimoitu käytettäväksi [uv](https://github.com/astral-sh/uv)-työkalulla.
+## ✨ Ominaisuudet
+* **Dynaaminen sanasto**: Hyödyntää Kotuksen nykysuomen sanalistaa (sisältää n. 94 000 sanaa).
+* **Tunniste-tila (🗣️)**: Generoi foneettisesti selkeitä ja lyhyitä sanoja (2–5 kpl), jotka on helppo sanoa ääneen kasvotusten tapahtuvassa tunnistamisessa.
+* **Vaikeusasteen hienosäätö**: Voit suodattaa sanoja niiden kirjoitus- ja ääntämisvaikeuden perusteella (0–100).
+* **Entropialaskenta**: Laskee teoreettisen bitin määrän (esim. 128 bittiä vastaa AES-standardin perustasoa).
+* **Moderni teknologia**: Selainversio toteutettu Streamlitillä, CLI-versio optimoitu `uv`-työkalulle.
+
+---
+
+## 🛠️ Paikallinen käyttö (CLI)
+
+Ohjelma on optimoitu käytettäväksi [uv](https://github.com/astral-sh/uv)-työkalulla, joka hallitsee riippuvuudet (kuten `pyperclip`) automaattisesti.
 
 ### Ajo komennolla:
 ```bash
@@ -46,5 +55,5 @@ graph TD
     style P60 fill:#0f0,stroke:#0f0;
     style P80 fill:#00f,stroke:#00f;
     style P128 fill:#808,stroke:#808;
-    style P98 fill:#0ff,stroke:#000,stroke-width:2px,stroke-dasharray: 5 5;
+
 ```
