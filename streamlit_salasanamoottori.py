@@ -97,7 +97,7 @@ def generoi_salalauseet(sanalista, sanojen_lkm, n=1):
 
 # --- Käyttöliittymä (UI) ---
 
-st.title("🔐 Salasanamoottori")
+st.header("🔐 Salasana-moottori")
 st.write("Generoi turvallisia salalauseita suoraan selaimessa.")
 
 # Sivupalkki asetuksille
