@@ -125,17 +125,6 @@ with st.sidebar:
         max_vk = st.slider("Yläraja", 0, 100, 100)
 
     st.markdown("---")
-    with st.expander("ℹ️ Mikä on vaikeusaste?"):
-        st.write("""
-        Vaikeusaste (0–100) arvioi lauseen kirjoittamista ja muistamista. 
-        Pisteitä lisäävät:
-        * Sanan pituus
-        * Harvinaiset kirjaimet (b, f, g, q, w, x, z, å)
-        * Peräkkäiset konsonantit
-        * Uniikkien merkkien määrä
-        """)
-
-    st.markdown("---")
     st.markdown("### 🔗 Lähdekoodi")
     st.markdown(
         "[GitHub: sedan-sihtaus](https://github.com/kayttajanimi/sedan-sihtaus)"
@@ -182,9 +171,13 @@ if raakasanalista:
             for e in ehdotukset:
                 cols = st.columns([4, 1])
                 cols[0].code(e, language=None)
+
+                # Lasketaan keskiarvo kerran
                 sanat = e.split("-")
-                # Määritellään sanallinen vaikeus
+                vk_avg = sum(laske_vaikeuskerroin(s) for s in sanat) / len(sanat)
                 vk_pyoreistys = round(vk_avg)
+
+                # Määritellään sanallinen arvio
                 if vk_pyoreistys < 30:
                     vk_teksti = "Helppo"
                 elif vk_pyoreistys < 50:
@@ -192,7 +185,8 @@ if raakasanalista:
                 else:
                     vk_teksti = "Haastava"
 
-                cols[1].write(f"**{vk_pyoreistys}**")
+                # Tulostetaan kerralla selkeästi
+                cols[1].write(f"**VK: {vk_pyoreistys}**")
                 cols[1].caption(vk_teksti)
 
     with tab2:
