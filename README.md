@@ -15,6 +15,7 @@ Ohjelma on optimoitu käytettäväksi [uv](https://github.com/astral-sh/uv)-työ
 ### Ajo komennolla:
 ```bash
 uv run salasanamoottori.py
+```
 
 ```mermaid
 graph TD
