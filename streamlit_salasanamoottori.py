@@ -1,4 +1,5 @@
 # Streamlit-web-versio Kotuksen sanalistaa hyödyntävästä salasanamoottorista
+# Sisältää: Salasana-generaattorin, Tunniste-tilan ja Sananmuunnos-koneen.
 # TV - 2026-03-22
 
 import math
@@ -86,13 +87,10 @@ def laske_vaikeuskerroin(sana):
 
 def generoi_salalauseet(sanalista, sanojen_lkm, n=1):
     lauseet = []
-    # Alustetaan kryptografisesti vahva generaattori
-    # Tämä hakee satunnaisuuden käyttöjärjestelmän lähteistä (esim. /dev/urandom)
+    # Kryptografisesti vahva generaattori
     cryptogen = random.SystemRandom()
-
     for _ in range(n):
         if len(sanalista) >= sanojen_lkm:
-            # Käytetään cryptogen-oliota random-kirjaston sijaan
             valitut = cryptogen.sample(sanalista, sanojen_lkm)
         else:
             valitut = [cryptogen.choice(sanalista) for _ in range(sanojen_lkm)]
@@ -100,10 +98,24 @@ def generoi_salalauseet(sanalista, sanojen_lkm, n=1):
     return lauseet
 
 
+def tee_sananmuunnos(sana1, sana2):
+    """Suorittaa klassisen suomalaisen sananmuunnoksen."""
+
+    def halkaise(sana):
+        vokaalit = "aeiouyäö"
+        for i, kirjain in enumerate(sana.lower()):
+            if kirjain in vokaalit:
+                return sana[: i + 1], sana[i + 1 :]
+        return sana, ""
+
+    alku1, loppu1 = halkaise(sana1)
+    alku2, loppu2 = halkaise(sana2)
+    return (alku2 + loppu1).lower(), (alku1 + loppu2).lower()
+
+
 # --- Käyttöliittymä (UI) ---
 
-st.header("🔐 Salasana-moottori")
-st.write("Generoi turvallisia salalauseita suoraan selaimessa.")
+st.title("🔐 Salasanamoottori")
 
 # Sivupalkki asetuksille
 with st.sidebar:
@@ -115,7 +127,7 @@ with st.sidebar:
     salli_skandit = skandit_input == "Kyllä"
 
     oletus_lkm = 4 if salli_skandit else 5
-    sanojen_lkm = st.slider("Sanojen määrä", 2, 12, oletus_lkm)
+    sanojen_lkm = st.slider("Sanojen määrä", 3, 12, oletus_lkm)
 
     with st.expander("Sanan pituus"):
         min_p = st.number_input("Min", 3, 20, 6)
@@ -127,52 +139,39 @@ with st.sidebar:
 
     st.markdown("---")
     with st.expander("ℹ️ Mikä on vaikeusaste?"):
-        st.write("""
-        Vaikeusaste (0–100) arvioi lauseen kirjoittamista ja muistamista. 
-        Pisteitä lisäävät:
-        * Sanan pituus
-        * Harvinaiset kirjaimet (b, f, g, q, w, x, z, å)
-        * Peräkkäiset konsonantit
-        * Uniikkien merkkien määrä
-        """)
+        st.write(
+            "Pisteitä lisäävät sanan pituus, harvinaiset kirjaimet ja konsonanttiyhdistelmät."
+        )
 
     st.markdown("---")
     st.markdown("### 🔗 Lähdekoodi")
     st.markdown(
-        "[GitHub: sedan-sihtaus](https://github.com/tuomastvirtanen/sedan-sihtaus)"
+        "[GitHub: sedan-sihtaus](https://github.com/kayttajanimi/sedan-sihtaus)"
     )
-    st.caption("Sovellus ei tallenna tai lähetä generoituja salalauseita.")
+    st.caption("Sovellus on täysin palvelimeton; tietoja ei tallenneta.")
 
-# 1. Lue sanalista tiedostosta
+# 1. Lue sanalista
 raakasanalista = lue_sanalista_tiedostosta(
     "kotus_sanat.txt", min_p, max_p, salli_skandit
 )
 
 if raakasanalista:
-    # 2. Suodata vaikeusasteen mukaan (vaikuttaa entropiaan ja sanavalintoihin)
     sanalista = [
         s for s in raakasanalista if min_vk <= laske_vaikeuskerroin(s) <= max_vk
     ]
 
     if not sanalista:
-        st.error(f"Ei sanoja vaikeusrajoilla {min_vk}-{max_vk}.")
+        st.error("Ei sanoja valituilla rajoilla.")
         st.stop()
 
-    # 3. Tunniste-tila suodatus
-    vaikeat_foneettiset = set("bcfgqwxzåäö")
-    tunniste_lista = [
-        s
-        for s in sanalista
-        if 4 <= len(s) <= 6 and not any(c in vaikeat_foneettiset for c in s.lower())
-    ]
-
     # --- Välilehdet ---
-    tab1, tab2 = st.tabs(["🚀 Generaattori", "🗣️ Tunniste-tila"])
+    tab1, tab2, tab3 = st.tabs(
+        ["🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone"]
+    )
 
     with tab1:
         entropia = laske_entropia(len(sanalista), sanojen_lkm)
         vahvuus, ikoni = arvioi_vahvuus(entropia)
-
         st.info(
             f"Avaruus: **{len(sanalista)}** | Vahvuus: **{int(entropia)} b** ({vahvuus} {ikoni})"
         )
@@ -183,26 +182,39 @@ if raakasanalista:
             for e in ehdotukset:
                 cols = st.columns([4, 1])
                 cols[0].code(e, language=None)
-                # Näytetään vain pituus tuloksissa selkeyden vuoksi
                 cols[1].caption(f"{len(e)} merk.")
 
     with tab2:
+        vaikeat_foneettiset = set("bcfgqwxzåäö")
+        tunniste_lista = [
+            s
+            for s in sanalista
+            if 4 <= len(s) <= 6 and not any(c in vaikeat_foneettiset for c in s.lower())
+        ]
+
         if len(tunniste_lista) < 10:
-            st.warning("Liian vähän sanoja tunnisteille näillä rajoilla.")
+            st.warning("Liian vähän helppoja sanoja.")
         else:
-            t_sanojen_lkm = st.slider("Tunnisteen sanojen määrä", 2, 5, 3)
-            t_entropia = laske_entropia(len(tunniste_lista), t_sanojen_lkm)
-            vahvuus_t, ikoni_t = arvioi_vahvuus(t_entropia)
-
-            st.info(
-                f"Tunniste-tila ({t_sanojen_lkm} sanaa). Vahvuus: **{int(t_entropia)} b** ({vahvuus_t} {ikoni_t})"
-            )
-
+            t_lkm = st.slider("Tunnisteen pituus", 2, 5, 3)
             if st.button("Generoi 10 tunnistetta"):
-                tunnisteet = generoi_salalauseet(tunniste_lista, t_sanojen_lkm, 10)
-                st.write("---")
+                tunnisteet = generoi_salalauseet(tunniste_lista, t_lkm, 10)
                 for t in tunnisteet:
                     st.success(f"**{t}**")
+
+    with tab3:
+        st.subheader("Sananmuunnos-generaattori")
+        st.write("Arpoo sanalistasta pareja ja vääntää ne muunnoksiksi.")
+
+        # Käytetään lyhyitä sanoja muunnoksiin, jotta ne pysyvät tunnistettavina
+        muunnos_lista = [s for s in raakasanalista if 3 <= len(s) <= 6]
+
+        if st.button("Arvo sananmuunnoksia"):
+            cryptogen = random.SystemRandom()
+            st.write("---")
+            for _ in range(10):
+                s1, s2 = cryptogen.sample(muunnos_lista, 2)
+                m1, m2 = tee_sananmuunnos(s1, s2)
+                st.write(f"**{s1} {s2}** ➜  *{m1} {m2}*")
 
 st.markdown("---")
 st.markdown("© TV 2026-03-22 | Data: Kotus")
