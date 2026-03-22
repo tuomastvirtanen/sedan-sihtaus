@@ -37,8 +37,6 @@ graph TD
         P45( ) -- Kohtalainen --> P60( )
         P60( ) -- Vahva --> P80( )
         P80( ) -- Erit. vahva --> P128( )
-        
-        P98(Sinun 98b) -.-> P80
     end
     
     style A fill:#fff,stroke:#fff;
