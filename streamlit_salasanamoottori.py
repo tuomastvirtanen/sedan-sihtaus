@@ -185,21 +185,36 @@ if raakasanalista:
                 cols[1].caption(f"{len(e)} merk.")
 
     with tab2:
+        # Laajennetaan pituushaitaria (3-7 merkkiä)
         vaikeat_foneettiset = set("bcfgqwxzåäö")
         tunniste_lista = [
             s
             for s in sanalista
-            if 4 <= len(s) <= 6 and not any(c in vaikeat_foneettiset for c in s.lower())
+            if 3 <= len(s) <= 7 and not any(c in vaikeat_foneettiset for c in s.lower())
         ]
 
-        if len(tunniste_lista) < 10:
-            st.warning("Liian vähän helppoja sanoja.")
+        if len(tunniste_lista) < 15:
+            st.warning(
+                "Liian vähän vaihtelua tunnisteille. Laske vaikeusastetta tai salli skandit."
+            )
         else:
-            t_lkm = st.slider("Tunnisteen pituus", 2, 5, 3)
+            t_lkm = st.slider("Tunnisteen sanojen määrä", 2, 5, 3)
+
             if st.button("Generoi 10 tunnistetta"):
-                tunnisteet = generoi_salalauseet(tunniste_lista, t_lkm, 10)
+                # Käytetään SystemRandomia
+                cryptogen = random.SystemRandom()
+                tunnisteet = []
+
+                for _ in range(10):
+                    # Valitaan sanat siten, että pituudet vaihtelevat
+                    valitut = cryptogen.sample(tunniste_lista, t_lkm)
+                    tunnisteet.append("-".join(valitut).lower())
+
+                st.write("---")
                 for t in tunnisteet:
+                    # Nyt pituudet vaihtelevat, esim. 'talo-vene-muki' vs 'tie-auto-lasi'
                     st.success(f"**{t}**")
+                    st.caption(f"Pituus: {len(t)} merkkiä")
 
     with tab3:
         st.subheader("Sananmuunnos-kone")
