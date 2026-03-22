@@ -14,7 +14,7 @@ Sovellus on ajettavissa suoraan selaimessa (myös mobiilissa):
 * **Vaikeusasteen hienosäätö**: Suodata sanoja kirjoitus- ja ääntämisvaikeuden perusteella (0–100).
 * **Entropialaskenta**: Laskee teoreettisen bitin määrän (esim. 128 bittiä vastaa AES-standardin perustasoa).
 * **Moderni teknologia**: Selainversio toteutettu Streamlitillä, CLI-versio optimoitu `uv`-työkalulle.
-
+* **Sananmuunnokset**: Ensimmäinen kehitysversio sananmuunnoskoneesta, molempien sanojen tulee löytyä Kotus-sanastosta. 
 ---
 
 ## 📊 Mitä bitit tarkoittavat käytännössä?
