@@ -172,8 +172,17 @@ if raakasanalista:
                 cols = st.columns([4, 1])
                 cols[0].code(e, language=None)
                 sanat = e.split("-")
-                vk_avg = sum(laske_vaikeuskerroin(s) for s in sanat) / len(sanat)
-                cols[1].caption(f"VK: {round(vk_avg)}")
+                # Määritellään sanallinen vaikeus
+                vk_pyoreistys = round(vk_avg)
+                if vk_pyoreistys < 30:
+                    vk_teksti = "Helppo"
+                elif vk_pyoreistys < 50:
+                    vk_teksti = "Normaali"
+                else:
+                    vk_teksti = "Haastava"
+
+                cols[1].write(f"**{vk_pyoreistys}**")
+                cols[1].caption(vk_teksti)
 
     with tab2:
         if len(tunniste_lista) < 10:
