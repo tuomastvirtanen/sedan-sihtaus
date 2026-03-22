@@ -139,7 +139,7 @@ if raakasanalista:
         st.error(f"Ei sanoja vaikeusrajoilla {min_vk}-{max_vk}.")
         st.stop()
 
-    # 3. Tunniste-tila suodatus
+    # 3. Tunniste-tila suodatus (Foneettisesti selkeät sanat)
     vaikeat_foneettiset = set("bcfgqwxzåäö")
     tunniste_lista = [
         s
@@ -169,15 +169,24 @@ if raakasanalista:
                 cols[1].caption(f"VK: {round(vk_avg)}")
 
     with tab2:
-        if len(tunniste_lista) < 5:
+        if len(tunniste_lista) < 10:
             st.warning("Liian vähän sanoja tunnisteille näillä rajoilla.")
         else:
-            t_entropia = laske_entropia(len(tunniste_lista), 3)
-            st.info(f"Tunniste-tila (3 sanaa). Vahvuus: **{int(t_entropia)} b**")
+            # Uusi valinta sanojen määrälle tunniste-tilassa
+            t_sanojen_lkm = st.slider("Tunnisteen sanojen määrä", 2, 5, 3)
+
+            t_entropia = laske_entropia(len(tunniste_lista), t_sanojen_lkm)
+            vahvuus_t, ikoni_t = arvioi_vahvuus(t_entropia)
+
+            st.info(
+                f"Tunniste-tila ({t_sanojen_lkm} sanaa). Vahvuus: **{int(t_entropia)} b** ({vahvuus_t} {ikoni_t})"
+            )
+
             if st.button("Generoi 10 tunnistetta"):
-                tunnisteet = generoi_salalauseet(tunniste_lista, 3, 10)
+                tunnisteet = generoi_salalauseet(tunniste_lista, t_sanojen_lkm, 10)
                 st.write("---")
                 for t in tunnisteet:
+                    # Näytetään tunnisteet vihreällä laatikolla
                     st.success(f"**{t}**")
 
 st.markdown("---")
