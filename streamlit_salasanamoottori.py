@@ -202,19 +202,41 @@ if raakasanalista:
                     st.success(f"**{t}**")
 
     with tab3:
-        st.subheader("Sananmuunnos-generaattori")
-        st.write("Arpoo sanalistasta pareja ja vääntää ne muunnoksiksi.")
+        st.subheader("Sananmuunnos-kone (Vahvistettu)")
+        st.write(
+            "Etsii sanalistasta pareja, joiden muunnos muodostaa oikeita suomen kielen sanoja."
+        )
 
-        # Käytetään lyhyitä sanoja muunnoksiin, jotta ne pysyvät tunnistettavina
+        # Luodaan set-rakenne nopeaa hakua varten (jos sitä ei ole jo tehty)
+        sanakirja_setti = set(s.lower() for s in raakasanalista)
+        # Rajataan lista lyhyisiin perussanoihin, jotta haku on mielekäs
         muunnos_lista = [s for s in raakasanalista if 3 <= len(s) <= 6]
 
-        if st.button("Arvo sananmuunnoksia"):
+        if st.button("Etsi aitoja sananmuunnoksia"):
             cryptogen = random.SystemRandom()
             st.write("---")
-            for _ in range(10):
+            loytynyt = 0
+            yritykset = 0
+
+            # Yritetään löytää 10 aitoa muunnosta (rajoitetaan yritykset jumiutumisen estämiseksi)
+            while loytynyt < 10 and yritykset < 5000:
+                yritykset += 1
                 s1, s2 = cryptogen.sample(muunnos_lista, 2)
                 m1, m2 = tee_sananmuunnos(s1, s2)
-                st.write(f"**{s1} {s2}** ➜  *{m1} {m2}*")
+
+                # Tarkistetaan löytyvätkö molemmat muunnokset sanakirjasta
+                if m1 in sanakirja_setti and m2 in sanakirja_setti:
+                    # Estetään itsestäänselvyydet (jos sanat eivät muuttuneet)
+                    if m1 != s1:
+                        st.write(f"✅ **{s1} {s2}** ➜  `{m1} {m2}`")
+                        loytynyt += 1
+
+            if loytynyt == 0:
+                st.warning(
+                    "Aitoja muunnoksia ei löytynyt näillä asetuksilla. Kokeile uudestaan!"
+                )
+            else:
+                st.caption(f"Etsitty {yritykset} parin joukosta.")
 
 st.markdown("---")
 st.markdown("© TV 2026-03-22 | Data: Kotus")
