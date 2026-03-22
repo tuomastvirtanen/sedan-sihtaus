@@ -86,11 +86,16 @@ def laske_vaikeuskerroin(sana):
 
 def generoi_salalauseet(sanalista, sanojen_lkm, n=1):
     lauseet = []
+    # Alustetaan kryptografisesti vahva generaattori
+    # Tämä hakee satunnaisuuden käyttöjärjestelmän lähteistä (esim. /dev/urandom)
+    cryptogen = random.SystemRandom()
+
     for _ in range(n):
         if len(sanalista) >= sanojen_lkm:
-            valitut = random.sample(sanalista, sanojen_lkm)
+            # Käytetään cryptogen-oliota random-kirjaston sijaan
+            valitut = cryptogen.sample(sanalista, sanojen_lkm)
         else:
-            valitut = [random.choice(sanalista) for _ in range(sanojen_lkm)]
+            valitut = [cryptogen.choice(sanalista) for _ in range(sanojen_lkm)]
         lauseet.append("-".join(valitut).lower())
     return lauseet
 
