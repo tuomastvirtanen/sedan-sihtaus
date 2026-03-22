@@ -2,62 +2,41 @@
 # TV - 2026-03-22
 
 import math
+import os
 import random
-import urllib.request
 
 import streamlit as st
 
 # --- Sivun konfiguraatio ---
-st.set_page_config(page_title="Salasanamoottori", page_icon="🔐")
+st.set_page_config(page_title="Salasanamoottori", page_icon="🔐", layout="centered")
 
-# --- Funktiot (pääosin samat kuin komentoriviversiossa) ---
-
-
-@st.cache_data(show_spinner="Ladataan sanalistaa Kotuksesta...")
-def lue_sanalista_verkosta(url, min_pituus, max_pituus, salli_skandit):
-    """Lataa sanalistan Kotuksen palvelimelta ja suodattaa sen. Välimuistitetaan."""
-    hakusanat = []
-    skandit = set("åäöÅÄÖ")
-
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req) as response:
-            data = response.read().decode("utf-8")
-            for rivi in data.splitlines():
-                osat = rivi.strip().split("\t")
-                if not osat:
-                    continue
-                sana = osat[0]
-                if not (min_pituus <= len(sana) <= max_pituus):
-                    continue
-                if not salli_skandit and any(c in skandit for c in sana):
-                    continue
-                if not sana.isalpha():
-                    continue
-                hakusanat.append(sana)
-    except Exception as e:
-        st.error(f"Virhe sanalistan latauksessa: {e}")
-        return None
-    return hakusanat
+# --- Funktiot ---
 
 
 @st.cache_data
-def lue_sanalista_tiedostosta(tiedostonimi, min_pituus, max_pituus, salli_skandit):
-    """Lukee sanalistan paikallisesta tiedostosta."""
+def lue_sanalista_tiedostosta(tiedostonimi, min_len, max_len, salli_skandit):
+    """Lukee sanalistan paikallisesta tiedostosta ja suodattaa pituuden sekä skandien mukaan."""
     hakusanat = []
-    skandit = set("åäöÅÄÖ")
+    skandit_set = set("åäöÅÄÖ")
+
+    # Varmistetaan polku Streamlit Cloudissa
+    current_dir = os.path.dirname(__file__)
+    file_path = os.path.join(current_dir, tiedostonimi)
 
     try:
-        with open(tiedostonimi, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             for rivi in f:
                 osat = rivi.strip().split("\t")
                 if not osat:
                     continue
                 sana = osat[0]
-                if not (min_pituus <= len(sana) <= max_pituus):
+                # Suodatus: pituus
+                if not (min_len <= len(sana) <= max_len):
                     continue
-                if not salli_skandit and any(c in skandit for c in sana):
+                # Suodatus: skandit
+                if not salli_skandit and any(c in skandit_set for c in sana):
                     continue
+                # Suodatus: vain kirjaimet
                 if not sana.isalpha():
                     continue
                 hakusanat.append(sana)
@@ -86,7 +65,7 @@ def arvioi_vahvuus(entropia):
 
 
 def laske_vaikeuskerroin(sana):
-    """Sama algoritmi kuin komentoriviversiossa."""
+    """Laskee sanan vaikeuden 0-100 välillä."""
     score = len(sana) * 2
     if len(sana) > 12:
         score += 15
@@ -123,113 +102,83 @@ def generoi_salalauseet(sanalista, sanojen_lkm, n=1):
 # --- Käyttöliittymä (UI) ---
 
 st.title("🔐 Salasanamoottori")
-st.write(
-    "Generoi turvallisia ja muistettavia salalauseita Kotuksen nykysuomen sanalistan avulla."
-)
+st.write("Generoi turvallisia salalauseita suoraan selaimessa.")
 
-# Sivupalkki asetuksille (Sidebar)
+# Sivupalkki asetuksille
 with st.sidebar:
     st.header("⚙️ Asetukset")
 
-    # Skandit ja dynaaminen sanojen määrä -suositus
     skandit_input = st.radio(
         "Sallitaanko skandit (å, ä, ö)?", ("Ei (oletus)", "Kyllä"), index=0
     )
-    skandit = skandit_input == "Kyllä"
-    suositus_lkm = 4 if skandit else 5
+    salli_skandit = skandit_input == "Kyllä"
 
-    sanojen_lkm = st.slider(
-        "Sanojen määrä lauseessa", min_value=3, max_value=12, value=suositus_lkm
-    )
+    oletus_lkm = 4 if salli_skandit else 5
+    sanojen_lkm = st.slider("Sanojen määrä", 3, 12, oletus_lkm)
 
-    # Sanan pituusrajat (Expander)
-    with st.expander("Sanan pituusrajat"):
-        min_p = st.number_input("Lyhyin sana", min_value=3, max_value=20, value=6)
-        max_p = st.number_input("Pisin sana", min_value=min_p, max_value=30, value=11)
+    with st.expander("Sanan pituus"):
+        min_p = st.number_input("Min", 3, 20, 6)
+        max_p = st.number_input("Max", min_p, 30, 11)
 
-    # Vaikeusasteen suodatus (Expander)
-    with st.expander("Vaikeusasteen suodatus (0-100)"):
-        min_vk = st.slider("Vaikeusasteen alaraja", 0, 100, 0)
-        max_vk = st.slider("Vaikeusasteen yläraja", 0, 100, 100)
+    with st.expander("Vaikeusasteen rajat (0-100)"):
+        min_vk = st.slider("Alaraja", 0, 100, 0)
+        max_vk = st.slider("Yläraja", 0, 100, 100)
 
-    # Haetaan ja suodatetaan data
-    # url = "https://kaino.kotus.fi/lataa/nykysuomensanalista2024.txt"
-    # raakasanalista = lue_sanalista_verkosta(url, min_p, max_p, skandit)
-    raakasanalista = lue_sanalista_tiedostosta(
-        "kotus_sanat.txt", min_pituus, max_pituus, salli_skandit
-    )
+# 1. Lue sanalista tiedostosta
+raakasanalista = lue_sanalista_tiedostosta(
+    "kotus_sanat.txt", min_p, max_p, salli_skandit
+)
 
-    if not raakasanalista:
-        st.stop()  # Lopetetaan suoritus jos dataa ei saada
-
-    # Suodatetaan lista vaikeusasteen mukaan
+if raakasanalista:
+    # 2. Suodata vaikeusasteen mukaan
     sanalista = [
         s for s in raakasanalista if min_vk <= laske_vaikeuskerroin(s) <= max_vk
     ]
 
     if not sanalista:
-        st.error(f"Sanalista on tyhjä annetuilla vaikeusrajoilla ({min_vk}-{max_vk}).")
+        st.error(f"Ei sanoja vaikeusrajoilla {min_vk}-{max_vk}.")
         st.stop()
 
-    # Tunniste-tilan suodatus (Foneettisesti selkeät sanat)
-    vaikeat_foneettisesti = set("bcfgqwxzåäö")
+    # 3. Tunniste-tila suodatus
+    vaikeat_foneettiset = set("bcfgqwxzåäö")
     tunniste_lista = [
         s
         for s in sanalista
-        if 4 <= len(s) <= 6 and not any(c in vaikeat_foneettisesti for c in s.lower())
+        if 4 <= len(s) <= 6 and not any(c in vaikeat_foneettiset for c in s.lower())
     ]
 
-# --- Pääalueen toiminnallisuus ---
+    # --- Välilehdet ---
+    tab1, tab2 = st.tabs(["🚀 Generaattori", "🗣️ Tunniste-tila"])
 
-tab1, tab2 = st.tabs(["🚀 Generaattori", "🗣️ Tunniste-tila (3 sanaa)"])
+    with tab1:
+        entropia = laske_entropia(len(sanalista), sanojen_lkm)
+        vahvuus, ikoni = arvioi_vahvuus(entropia)
 
-# Tabi 1: Perusgeneraattori
-with tab1:
-    entropia = laske_entropia(len(sanalista), sanojen_lkm)
-    vahvuus_teksti, ikoni = arvioi_vahvuus(entropia)
-
-    # Info-laatikko tilastoista
-    st.info(
-        f"Sana-avaruus: **{len(sanalista)}** sanaa | Vahvuus: **{int(entropia)}** bittiä | Arvio: **{vahvuus_teksti} {ikoni}**"
-    )
-
-    # Generoi-painike
-    if st.button("Generoi 10 ehdotusta", type="primary"):
-        ehdotukset = generoi_salalauseet(sanalista, sanojen_lkm, n=10)
-
-        st.write("---")
-        for i, ehdotus in enumerate(ehdotukset):
-            sanat = ehdotus.split("-")
-            vk = sum(laske_vaikeuskerroin(s) for s in sanat) / len(sanat)
-
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                # Koodi-blokki, josta salalause on helppo kopioida puhelimella
-                st.code(ehdotus, language=None)
-            with col2:
-                # Näytetään vaikeusaste ja pituus
-                st.caption(f"Vaikeus: {round(vk)} | {len(ehdotus)} merk.")
-
-# Tabi 2: Tunniste-tila
-with tab2:
-    if len(tunniste_lista) < 10:
-        st.warning(
-            f"Tunniste-tilaan sopivia sanoja ei löytynyt vaikeusrajojen ({min_vk}-{max_vk}) puitteissa."
-        )
-    else:
-        t_entropia = laske_entropia(len(tunniste_lista), 3)
         st.info(
-            f"Tunniste-tila käyttää 3 selkeää sanaa ({len(tunniste_lista)} sanan avaruudesta). Vahvuus: **{int(t_entropia)}** bittiä."
+            f"Avaruus: **{len(sanalista)}** | Vahvuus: **{int(entropia)} b** ({vahvuus} {ikoni})"
         )
 
-        if st.button("Generoi 10 tunnistetta"):
-            tunnisteet = generoi_salalauseet(tunniste_lista, 3, n=10)
-
+        if st.button("Generoi 10 ehdotusta", type="primary"):
+            ehdotukset = generoi_salalauseet(sanalista, sanojen_lkm, 10)
             st.write("---")
-            for i, tunniste in enumerate(tunnisteet):
-                # Tunnisteet ovat lyhyitä, ei tarvita code-blokkia, st.success näyttää ne tyylikkäästi
-                st.success(f"**{tunniste}**")
+            for e in ehdotukset:
+                cols = st.columns([4, 1])
+                cols[0].code(e, language=None)
+                sanat = e.split("-")
+                vk_avg = sum(laske_vaikeuskerroin(s) for s in sanat) / len(sanat)
+                cols[1].caption(f"VK: {round(vk_avg)}")
 
-# --- Alatunniste ---
+    with tab2:
+        if len(tunniste_lista) < 5:
+            st.warning("Liian vähän sanoja tunnisteille näillä rajoilla.")
+        else:
+            t_entropia = laske_entropia(len(tunniste_lista), 3)
+            st.info(f"Tunniste-tila (3 sanaa). Vahvuus: **{int(t_entropia)} b**")
+            if st.button("Generoi 10 tunnistetta"):
+                tunnisteet = generoi_salalauseet(tunniste_lista, 3, 10)
+                st.write("---")
+                for t in tunnisteet:
+                    st.success(f"**{t}**")
+
 st.markdown("---")
-st.markdown("© TV 2026-03-22 | Data: Kotimaisten kielten keskus")
+st.markdown("© TV 2026-03-22 | Data: Kotus")
