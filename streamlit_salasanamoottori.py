@@ -125,6 +125,17 @@ with st.sidebar:
         max_vk = st.slider("Yläraja", 0, 100, 100)
 
     st.markdown("---")
+    with st.expander("ℹ️ Mikä on vaikeusaste?"):
+        st.write("""
+        Vaikeusaste (0–100) arvioi lauseen kirjoittamista ja muistamista. 
+        Pisteitä lisäävät:
+        * Sanan pituus
+        * Harvinaiset kirjaimet (b, f, g, q, w, x, z, å)
+        * Peräkkäiset konsonantit
+        * Uniikkien merkkien määrä
+        """)
+
+    st.markdown("---")
     st.markdown("### 🔗 Lähdekoodi")
     st.markdown(
         "[GitHub: sedan-sihtaus](https://github.com/kayttajanimi/sedan-sihtaus)"
