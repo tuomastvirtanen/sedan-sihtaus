@@ -115,7 +115,7 @@ def tee_sananmuunnos(sana1, sana2):
 
 # --- Käyttöliittymä (UI) ---
 
-st.title("🔐 Salasanamoottori")
+st.header("🔐 Salasanamoottori")
 
 # Sivupalkki asetuksille
 with st.sidebar:
