@@ -210,7 +210,7 @@ if raakasanalista:
         # Luodaan set-rakenne nopeaa hakua varten (jos sitä ei ole jo tehty)
         sanakirja_setti = set(s.lower() for s in raakasanalista)
         # Rajataan lista lyhyisiin perussanoihin, jotta haku on mielekäs
-        muunnos_lista = [s for s in raakasanalista if 3 <= len(s) <= 6]
+        muunnos_lista = [s for s in raakasanalista if 3 <= len(s) <= 8]
 
         if st.button("Etsi aitoja sananmuunnoksia"):
             cryptogen = random.SystemRandom()
