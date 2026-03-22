@@ -1,52 +1,45 @@
-# ohjelma lukee kotimaisten kielenten keskuksen julkaisemaa sanalistaa
-# Sanatietue koostuu seuraavista tiedoista: 1) hakusana, 2) homonymia, 3) sanaluokka ja 4) taivutus.
+# Salasanamoottori - CLI-versio (Command Line Interface)
+# Sisältää: Salasana-generaattorin, Tunniste-tilan ja Sananmuunnos-koneen.
 # TV - 2026-03-22
 
-# /// script
-# dependencies = [
-#   "pyperclip",
-# ]
-# ///
+import math
+import os
+import random
+import sys
 
-import math  # laskentaan
-import random  # arvontaan
-import sys  # ohjelman hallittu lopetus
-import urllib.request  # jotta luetaan tietoja netistä
-
-import pyperclip  # kopio leikepöydälle
+# --- Funktiot ---
 
 
-def lue_sanalista_verkosta(url, min_pituus, max_pituus, salli_skandit):
-    """Lataa sanalistan suoraan Kotuksen palvelimelta ja suodattaa sen."""
+def lue_sanalista_tiedostosta(tiedostonimi, min_len, max_len, salli_skandit):
+    """Lukee sanalistan paikallisesta tiedostosta ja suodattaa pituuden sekä skandien mukaan."""
     hakusanat = []
-    skandit = set("åäöÅÄÖ")
+    skandit_set = set("åäöÅÄÖ")
+
+    # Etsitään tiedosto samasta kansiosta kuin skripti
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, tiedostonimi)
+
+    if not os.path.exists(file_path):
+        print(f"❌ Virhe: Tiedostoa '{tiedostonimi}' ei löydy polusta {current_dir}")
+        return None
 
     try:
-        print(f"Ladataan sanalistaa osoitteesta: {url}...")
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-
-        with urllib.request.urlopen(req) as response:
-            data = response.read().decode("utf-8")
-
-            for rivi in data.splitlines():
+        with open(file_path, "r", encoding="utf-8") as f:
+            for rivi in f:
                 osat = rivi.strip().split("\t")
                 if not osat:
                     continue
-
                 sana = osat[0]
-                if not (min_pituus <= len(sana) <= max_pituus):
+                if not (min_len <= len(sana) <= max_len):
                     continue
-                if not salli_skandit and any(c in skandit for c in sana):
+                if not salli_skandit and any(c in skandit_set for c in sana):
                     continue
                 if not sana.isalpha():
                     continue
-
                 hakusanat.append(sana)
-
     except Exception as e:
-        print(f"\nVirhe sanalistan latauksessa: {e}")
+        print(f"❌ Virhe tiedoston luvussa: {e}")
         return None
-
     return hakusanat
 
 
@@ -58,32 +51,27 @@ def laske_entropia(sanalista_koko, sanojen_maara):
 
 def arvioi_vahvuus(entropia):
     if entropia < 45:
-        return "Heikko"
+        return "Heikko", "🔴"
     if entropia < 60:
-        return "Kohtalainen"
+        return "Kohtalainen", "🟠"
     if entropia < 80:
-        return "Vahva"
-    return "Erit. vahva"
-
-
-def arvioi_vaikeus(pisteet):
-    """Palauttaa vaikeuden pyöristettynä numerona 1-100."""
-    return round(pisteet)
+        return "Vahva", "🟢"
+    if entropia < 128:
+        return "Erit. vahva", "🔵"
+    return "AES-taso (murtamaton)", "⭐"
 
 
 def laske_vaikeuskerroin(sana):
-    score = 0
-    score += len(sana) * 2
+    """Laskee sanan vaikeuden 0-100 välillä suodatusta varten."""
+    score = len(sana) * 2
     if len(sana) > 12:
         score += 15
-
     harvinaiset = set("bcfgqwxzå")
     loytyneet_harvinaiset = [c for c in sana.lower() if c in harvinaiset]
     score += len(loytyneet_harvinaiset) * 10
-
     uniikit_merkit = len(set(sana))
-    score += (uniikit_merkit / len(sana)) * 20
-
+    if len(sana) > 0:
+        score += (uniikit_merkit / len(sana)) * 20
     vokaalit = set("aeiouyäö")
     perakkaiset_konsonantit = 0
     max_perakkaiset = 0
@@ -93,150 +81,126 @@ def laske_vaikeuskerroin(sana):
             max_perakkaiset = max(max_perakkaiset, perakkaiset_konsonantit)
         else:
             perakkaiset_konsonantit = 0
-
     score += max_perakkaiset * 5
     return round(min(score, 100))
 
 
-def generoi_salalause(sanalista, sanojen_lkm):
-    if len(sanalista) >= sanojen_lkm:
-        valitut = random.sample(sanalista, sanojen_lkm)
-    else:
-        valitut = [random.choice(sanalista) for _ in range(sanojen_lkm)]
-    return "-".join(valitut).lower()
+def generoi_salalauseet(sanalista, sanojen_lkm, n=1):
+    lauseet = []
+    cryptogen = random.SystemRandom()
+    for _ in range(n):
+        if len(sanalista) >= sanojen_lkm:
+            valitut = cryptogen.sample(sanalista, sanojen_lkm)
+        else:
+            valitut = [cryptogen.choice(sanalista) for _ in range(sanojen_lkm)]
+        lauseet.append("-".join(valitut).lower())
+    return lauseet
+
+
+def tee_sananmuunnos(sana1, sana2):
+    """Suorittaa klassisen suomalaisen sananmuunnoksen."""
+
+    def halkaise(sana):
+        vokaalit = "aeiouyäö"
+        for i, kirjain in enumerate(sana.lower()):
+            if kirjain in vokaalit:
+                return sana[: i + 1], sana[i + 1 :]
+        return sana, ""
+
+    alku1, loppu1 = halkaise(sana1)
+    alku2, loppu2 = halkaise(sana2)
+    return (alku2 + loppu1).lower(), (alku1 + loppu2).lower()
+
+
+# --- Pääohjelma ---
 
 
 def main():
-    url = "https://kaino.kotus.fi/lataa/nykysuomensanalista2024.txt"
+    print("🔐 SALASANAMOOTTORI CLI")
+    print("-" * 30)
 
-    print("\n" + "=" * 35)
-    print("      SALALAUSEGENERAATTORI")
-    print("=" * 35)
+    # Asetukset (vastaavat Streamlitin sivupalkkia)
+    salli_skandit = False
+    sanojen_lkm = 5
+    min_p, max_p = 6, 11
+    min_vk, max_vk = 0, 100
 
-    skandit = input("Sallitaanko skandit (å, ä, ö)? (k/(e)): ").lower() == "k"
-    oletus_lkm = 4 if skandit else 5
-
-    try:
-        min_p = int(input("Lyhyin sanan pituus (6): ") or "6")
-        max_p = int(input("Pisin sanan pituus (11): ") or "11")
-        sanojen_lkm = int(input(f"Sanojen määrä ({oletus_lkm}): ") or str(oletus_lkm))
-
-        # UUSI: Vaikeusasteen rajat
-        min_vk = int(input("Vaikeusasteen alaraja (0): ") or "0")
-        max_vk = int(input("Vaikeusasteen yläraja (100): ") or "100")
-
-    except ValueError:
-        print("Virheellinen syöte, käytetään oletusarvoja.")
-        min_p, max_p, sanojen_lkm = 6, 11, oletus_lkm
-        min_vk, max_vk = 0, 100
-
-    # Haetaan data
-    raakasanalista = lue_sanalista_verkosta(url, min_p, max_p, skandit)
+    # 1. Lue sanalista
+    raakasanalista = lue_sanalista_tiedostosta(
+        "kotus_sanat.txt", min_p, max_p, salli_skandit
+    )
 
     if not raakasanalista:
-        print("Sanalistaa ei voitu ladata.")
         sys.exit(1)
 
-    # Suodatetaan lista vaikeusasteen mukaan
     sanalista = [
         s for s in raakasanalista if min_vk <= laske_vaikeuskerroin(s) <= max_vk
     ]
 
     if not sanalista:
-        print(f"Sanalista on tyhjä annetuilla vaikeusrajoilla ({min_vk}-{max_vk}).")
+        print("❌ Virhe: Sanalista on tyhjä annetuilla rajoilla.")
         sys.exit(1)
 
-    entropia = laske_entropia(len(sanalista), sanojen_lkm)
-    vahvuus_teksti = arvioi_vahvuus(entropia)
+    while True:
+        print("\nVALITSE TOIMINTO:")
+        print("1. Generoi salalauseita")
+        print("2. Tunniste-tila (helpot sanat)")
+        print("3. Sananmuunnos-kone")
+        print("4. Lopeta")
 
-    print(f"\nSana-avaruus: {len(sanalista)} sanaa.")
-    print(f"Teoreettinen vahvuus: {int(entropia)} bittiä ({vahvuus_teksti}).")
+        valinta = input("\nSyötä numero (1-4): ")
 
-    print("\nValitse tila:")
-    print("(1) Yksittäinen ehdotus")
-    print("(2) Lista 15 vaihtoehtoa")
-    print("(3) Tunniste (ääneen lausuttava, 3 sanaa)")
-    tila = input("\nSyötä tila (1/2/3): ")
-
-    match tila:
-        case "2":
-            ehdotukset = [generoi_salalause(sanalista, sanojen_lkm) for _ in range(15)]
-            pisin_lause_len = max(len(e) for e in ehdotukset)
-            sarake_leveys = max(50, pisin_lause_len + 2)
-
-            otsikko = (
-                f"{'Nro':<4} | {'Salalause':<{sarake_leveys}} | {'Pituus':<10} | "
-                f"{'Bitit':<8} | {'Vahvuus':<12} | {'Vaikeus'}"
+        if valinta == "1":
+            entropia = laske_entropia(len(sanalista), sanojen_lkm)
+            vahvuus, ikoni = arvioi_vahvuus(entropia)
+            print(
+                f"\n📊 Avaruus: {len(sanalista)} sanaa | Vahvuus: {int(entropia)} b ({vahvuus} {ikoni})"
             )
+            ehdotukset = generoi_salalauseet(sanalista, sanojen_lkm, 10)
+            print("-" * 30)
+            for e in ehdotukset:
+                print(f"[{len(e):2} merk] {e}")
 
-            print("\n" + "=" * len(otsikko))
-            print(otsikko)
-            print("-" * len(otsikko))
-
-            for i, ehdotus in enumerate(ehdotukset, 1):
-                sanat = ehdotus.split("-")
-                vk = sum(laske_vaikeuskerroin(s) for s in sanat) / len(sanat)
-                print(
-                    f"{i:>2}.  | {ehdotus:<{sarake_leveys}} | {len(ehdotus):>3} merk. | "
-                    f"{int(entropia):>3} b    | {vahvuus_teksti:<12} | {arvioi_vaikeus(vk)}"
-                )
-            print("=" * len(otsikko))
-
-            valinta = input("\nKopioi numero (1-15) tai 'e' (exit): ")
-            if valinta.isdigit() and 1 <= int(valinta) <= 15:
-                valittu = ehdotukset[int(valinta) - 1]
-                pyperclip.copy(valittu)
-                print(f"\n*** '{valittu}' kopioitu! ***")
-
-        case "3":
-            # Tunniste-tila: Foneettisesti selkeät sanat (sisältää oman suodatuksen)
-            vaikeat = set("bcfgqwxzåäö")
+        elif valinta == "2":
+            vaikeat_foneettiset = set("bcfgqwxzåäö")
             tunniste_lista = [
                 s
-                for s in sanalista  # Käyttää jo valmiiksi vaikeussuodatettua listaa
-                if 4 <= len(s) <= 6 and not any(c in vaikeat for c in s.lower())
+                for s in sanalista
+                if 4 <= len(s) <= 6
+                and not any(c in vaikeat_foneettiset for c in s.lower())
             ]
             if len(tunniste_lista) < 10:
-                print(
-                    "Tunniste-tilaan sopivia sanoja ei löytynyt vaikeusrajojen puitteissa."
-                )
-                sys.exit(1)
+                print("⚠️ Liian vähän helppoja sanoja.")
+            else:
+                t_lkm = 3
+                tunnisteet = generoi_salalauseet(tunniste_lista, t_lkm, 10)
+                print("\n🗣️ TUNNISTEET:")
+                for t in tunnisteet:
+                    print(f" > {t}")
 
-            t_entropia = laske_entropia(len(tunniste_lista), 3)
-            ehdotukset = [generoi_salalause(tunniste_lista, 3) for _ in range(15)]
+        elif valinta == "3":
+            print("\n🤪 SANANMUUNNOS-KONE")
+            sanakirja_setti = set(s.lower() for s in raakasanalista)
+            muunnos_lista = [s for s in raakasanalista if 3 <= len(s) <= 9]
+            cryptogen = random.SystemRandom()
+            loytynyt = 0
+            yritykset = 0
 
-            print("\n--- LUODAAN 15 TUNNISTETTA (Ääneen lausuttavat) ---")
-            otsikko = f"{'Nro':<4} | {'Tunniste':<30} | {'Vahvuus':<10} | {'Vaikeus'}"
-            print("-" * len(otsikko))
+            while loytynyt < 10 and yritykset < 5000:
+                yritykset += 1
+                s1, s2 = cryptogen.sample(muunnos_lista, 2)
+                m1, m2 = tee_sananmuunnos(s1, s2)
+                if m1 in sanakirja_setti and m2 in sanakirja_setti and m1 != s1:
+                    print(f"✅ {s1} {s2} ➜  {m1} {m2}")
+                    loytynyt += 1
+            if loytynyt == 0:
+                print("⚠️ Aitoja muunnoksia ei löytynyt.")
 
-            for i, ehdotus in enumerate(ehdotukset, 1):
-                sanat = ehdotus.split("-")
-                vk = sum(laske_vaikeuskerroin(s) for s in sanat) / 3
-                print(
-                    f"{i:>2}.  | {ehdotus:<30} | {int(t_entropia):>2} bittiä | {arvioi_vaikeus(vk)}"
-                )
-            print("-" * len(otsikko))
-
-        case _:
-            while True:
-                salalause = generoi_salalause(sanalista, sanojen_lkm)
-                sanat = salalause.split("-")
-                vk = sum(laske_vaikeuskerroin(s) for s in sanat) / len(sanat)
-
-                print(f"\nEhdotus: {salalause}")
-                print(
-                    f"Vahvuus: {int(entropia)} b ({vahvuus_teksti}) | Vaikeus: {arvioi_vaikeus(vk)}"
-                )
-
-                vastaus = input("\nKelpaako? (k/e/[uusi]): ").lower() or "uusi"
-
-                if vastaus == "k":
-                    pyperclip.copy(salalause)
-                    print("\n*** Kopioitu! ***")
-                    break
-                elif vastaus == "e":
-                    print("\nPoistutaan kopioimatta.")
-                    break
+        elif valinta == "4":
+            print("Moi moi!")
+            break
+        else:
+            print("Virheellinen valinta.")
 
 
 if __name__ == "__main__":
