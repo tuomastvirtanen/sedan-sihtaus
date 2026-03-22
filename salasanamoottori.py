@@ -166,10 +166,10 @@ def main():
             tunniste_lista = [
                 s
                 for s in sanalista
-                if 4 <= len(s) <= 6
+                if 3 <= len(s) <= 7
                 and not any(c in vaikeat_foneettiset for c in s.lower())
             ]
-            if len(tunniste_lista) < 10:
+            if len(tunniste_lista) < 15:
                 print("⚠️ Liian vähän helppoja sanoja.")
             else:
                 t_lkm = 3
