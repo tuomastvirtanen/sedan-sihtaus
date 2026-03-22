@@ -134,7 +134,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🔗 Lähdekoodi")
     st.markdown(
-        "[GitHub: sedan-sihtaus](https://github.com/kayttajanimi/sedan-sihtaus)"
+        "[GitHub: sedan-sihtaus](https://github.com/tuomastvirtanen/sedan-sihtaus)"
     )
     st.caption("Sovellus ei tallenna tai lähetä generoituja salalauseita.")
 
