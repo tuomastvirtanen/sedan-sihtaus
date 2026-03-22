@@ -124,6 +124,13 @@ with st.sidebar:
         min_vk = st.slider("Alaraja", 0, 100, 0)
         max_vk = st.slider("Yläraja", 0, 100, 100)
 
+    st.markdown("---")
+    st.markdown("### 🔗 Lähdekoodi")
+    st.markdown(
+        "[GitHub: sedan-sihtaus](https://github.com/kayttajanimi/sedan-sihtaus)"
+    )
+    st.caption("Sovellus ei tallenna tai lähetä generoituja salalauseita.")
+
 # 1. Lue sanalista tiedostosta
 raakasanalista = lue_sanalista_tiedostosta(
     "kotus_sanat.txt", min_p, max_p, salli_skandit
