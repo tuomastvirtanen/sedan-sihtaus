@@ -202,7 +202,7 @@ if raakasanalista:
                     st.success(f"**{t}**")
 
     with tab3:
-        st.subheader("Sananmuunnos-kone (Vahvistettu)")
+        st.subheader("Sananmuunnos-kone")
         st.write(
             "Etsii sanalistasta pareja, joiden muunnos muodostaa oikeita suomen kielen sanoja."
         )
