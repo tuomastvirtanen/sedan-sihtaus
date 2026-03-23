@@ -263,7 +263,7 @@ if raakasanalista:
             "Tuottaa toistaiseksi vain kuusimerkkisiä satunnaislukuja, jotka sopivat vaikkapa PIN-koodiksi."
         )
         lukusarja = arvo_numerot(6)
-        st.write(f"Arvotut numerot:, {' '.join(str(n) for n in lukusarja)}")
+        # st.write(f"Arvotut numerot:, {' '.join(str(n) for n in lukusarja)}")
 
         if st.button("Arvo uusi luku"):
             lukusarja = arvo_numerot(6) 
