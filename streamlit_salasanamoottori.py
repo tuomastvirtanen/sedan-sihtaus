@@ -169,9 +169,19 @@ if raakasanalista:
         st.stop()
 
     # --- Välilehdet ---
-    tab1, tab2, tab3, tab4 = st.tabs(
-        ["🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone", "🎲 Luvut"]
+    tab0, tab1, tab2, tab3, tab4 = st.tabs(
+        ["📖 Ohjeet", "🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone", "🎲 Luvut"]
     )
+
+    with tab0:
+        st.subheader("Tietoa ohjelmasta")
+        try:
+            # Luetaan README.md tiedoston sisältö
+            with open("README.md", "r", encoding="utf-8") as f:
+                readme_sisalto = f.read()
+            st.markdown(readme_sisalto)
+        except FileNotFoundError:
+            st.info("Tervetuloa! Katso ohjeet projektin GitHub-sivulta.")
 
     with tab1:
         entropia = laske_entropia(len(sanalista), sanojen_lkm)
