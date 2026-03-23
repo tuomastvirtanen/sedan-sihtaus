@@ -1,6 +1,6 @@
 # 🔐 Sedan-sihtaus: Salalausegeneraattori
 
-Tämä on Python-pohjainen työkalu vahvojen, suomenkielisten salalauseiden generointiin. Ohjelma hyödyntää Kotuksen nykysuomen sanalistaa ja tarjoaa matemaattisesti perustellun arvion salasanan murtovarmuudesta (entropia).
+Tämä on Python-pohjainen työkalu vahvojen, suomenkielisten salalauseiden generointiin. Ohjelma hyödyntää Kotuksen nykysuomen sanalistaa ja tarjoaa matemaattisesti perustellun arvion salasanan murtovarmuudesta (entropia). Ohjelman nimi, sedan-sihtaus, on ensimmäisen kehitysversion ensimmäinen arvottu sanapari. 
 
 ## 🌍 Selainversio
 Sovellus on ajettavissa suoraan selaimessa (myös mobiilissa):
