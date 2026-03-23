@@ -1,2 +1,4 @@
 streamlit
 pyperclip
+uvicorn[standard]
+fastapi
