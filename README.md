@@ -43,34 +43,3 @@ Voit käyttää sovellusta myös paikallisesti omalla koneella. Ohjelma on optim
 ```bash
 uv run salasanamoottori.py
 ```
-
-```mermaid
-graph TD
-    subgraph "Salasanan Entropia vs. Brute-force Aika"
-        A[Aika murtaa] -->|Log asteikko| B{ }
-        B --> |1 m| C1[40b: Sekunteja]
-        B --> |1 v| C2[55b: Vuosia]
-        B --> |1000 v| C3[70b: Vuosituhansia]
-        B --> |1 mrd v| C4[90b: Ikuisuus]
-        B --> |Universumin ikä| C5[128b: Mahdoton]
-        
-        X[Entropia] -->|bittiä| D1(20)
-        D1 -->|45| D2(Suositus min)
-        D2 -->|60| D3(Vahva)
-        D3 -->|80| D4(Sotilastaso)
-        D4 -->|128| D5(AES)
-    
-        P20( ) -- Heikko --> P45( )
-        P45( ) -- Kohtalainen --> P60( )
-        P60( ) -- Vahva --> P80( )
-        P80( ) -- Erit. vahva --> P128( )
-    end
-    
-    style A fill:#fff,stroke:#fff;
-    style X fill:#fff,stroke:#fff;
-    style P20 fill:#f00,stroke:#f00;
-    style P45 fill:#ff0,stroke:#ff0;
-    style P60 fill:#0f0,stroke:#0f0;
-    style P80 fill:#00f,stroke:#00f;
-    style P128 fill:#808,stroke:#808;
-```
