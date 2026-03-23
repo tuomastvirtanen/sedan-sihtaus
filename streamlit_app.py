@@ -1,9 +1,10 @@
 # streamlit_app.py
 # Salasanamoottorin Web-käyttöliittymä
 # Ajo: streamlit run streamlit_app.py
+# TV - 2026-03-22
 
 import streamlit as st
-import logic  # Tuodaan oma logiikkamoduuli
+import logic  # Tuodaan itse tehty logiikkamoduuli
 
 # --- Sivun konfiguraatio ---
 st.set_page_config(page_title="Salasanamoottori", page_icon="🔐", layout="centered")
@@ -55,8 +56,8 @@ if raakalista:
         st.stop()
 
     # --- Välilehdet ---
-    tab0, tab1, tab2, tab3, tab4 = st.tabs(
-        ["📖 Ohjeet", "🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone", "🎲 Luvut"]
+    tab1, tab2, tab3, tab4, tabo0 = st.tabs(
+        ["🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone", "🎲 Luvut", "📖 Ohjeet"]
     )
 
     with tab0:
