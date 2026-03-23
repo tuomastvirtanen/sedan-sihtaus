@@ -10,6 +10,7 @@ Sovellus on ajettavissa suoraan selaimessa (myös mobiilissa):
 
 ## ✨ Ominaisuudet
 * **Dynaaminen sanasto**: Hyödyntää Kotuksen nykysuomen sanalistaa (sisältää n. 94 000 sanaa).
+* **Generaattori**: Luo nykysuomen sanalistan perusteella halutun vahvuisen salauslauseen
 * **Tunniste-tila (🗣️)**: Generoi foneettisesti selkeitä ja lyhyitä sanoja (2–5 kpl), jotka on helppo sanoa ääneen.
 * **Vaikeusasteen hienosäätö**: Suodata sanoja kirjoitus- ja ääntämisvaikeuden perusteella (0–100).
 * **Entropialaskenta**: Laskee teoreettisen bitin määrän (esim. 128 bittiä vastaa AES-standardin perustasoa).
