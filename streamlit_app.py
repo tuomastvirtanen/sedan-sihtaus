@@ -56,7 +56,7 @@ if raakalista:
         st.stop()
 
     # --- Välilehdet ---
-    tab1, tab2, tab3, tab4, tabo0 = st.tabs(
+    tab1, tab2, tab3, tab4, tab0 = st.tabs(
         ["🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone", "🎲 Luvut", "📖 Ohjeet"]
     )
 
