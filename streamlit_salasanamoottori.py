@@ -180,7 +180,7 @@ if raakasanalista:
             f"Avaruus: **{len(sanalista)}** | Vahvuus: **{int(entropia)} b** ({vahvuus} {ikoni})"
         )
 
-        if st.button("Generoi 10 ehdotusta", type="primary"):
+        if st.button("Generoi 10 ehdotusta", type="primary", key="gen_salalause"):
             ehdotukset = generoi_salalauseet(sanalista, sanojen_lkm, 10)
             st.write("---")
             for e in ehdotukset:
@@ -204,7 +204,7 @@ if raakasanalista:
         else:
             t_lkm = st.slider("Tunnisteen sanojen määrä", 2, 5, 3)
 
-            if st.button("Generoi 10 tunnistetta"):
+            if st.button("Generoi 10 tunnistetta", key="gen_tunniste"):
                 # Käytetään SystemRandomia
                 cryptogen = random.SystemRandom()
                 tunnisteet = []
@@ -266,7 +266,7 @@ if raakasanalista:
         # Lisätään valitsin pituudelle
         n_pituus = st.slider("Numeroiden määrä", 4, 16, 6)
 
-        if st.button("Arvo uusi luku"):
+        if st.button("Arvo uusi luku", key="gen_luku"):
             uusi_luku = "".join(str(n) for n in arvo_numerot(n_pituus))
             st.code(uusi_luku, language=None)
         else:
