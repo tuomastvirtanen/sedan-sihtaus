@@ -60,14 +60,6 @@ if raakalista:
         ["🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone", "🎲 Luvut", "📖 Ohjeet"]
     )
 
-    with tab0:
-        st.subheader("Tietoa ohjelmasta")
-        try:
-            with open("README.md", "r", encoding="utf-8") as f:
-                st.markdown(f.read())
-        except FileNotFoundError:
-            st.info("README.md tiedostoa ei löytynyt. Katso ohjeet GitHubista.")
-
     with tab1:
         entropia = logic.laske_entropia(len(sanalista), sanojen_lkm)
         vahvuus, ikoni = logic.arvioi_vahvuus(entropia)
@@ -124,6 +116,14 @@ if raakalista:
         else:
             luku = "".join(str(n) for n in logic.arvo_numerot(n_pituus))
             st.code(luku, language=None)
+
+    with tab0:
+        st.subheader("Tietoa ohjelmasta")
+        try:
+            with open("README.md", "r", encoding="utf-8") as f:
+                st.markdown(f.read())
+        except FileNotFoundError:
+            st.info("README.md tiedostoa ei löytynyt. Katso ohjeet GitHubista.")
 
 st.markdown("---")
 st.markdown("© TV 2026-03-23 | Data: Kotus")
