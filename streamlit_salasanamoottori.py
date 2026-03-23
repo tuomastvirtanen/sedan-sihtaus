@@ -13,7 +13,6 @@ st.set_page_config(page_title="Salasanamoottori", page_icon="🔐", layout="cent
 
 # --- Funktiot ---
 
-
 @st.cache_data
 def lue_sanalista_tiedostosta(tiedostonimi, min_len, max_len, salli_skandit):
     """Lukee sanalistan paikallisesta tiedostosta ja suodattaa pituuden sekä skandien mukaan."""
@@ -112,6 +111,11 @@ def tee_sananmuunnos(sana1, sana2):
     alku2, loppu2 = halkaise(sana2)
     return (alku2 + loppu1).lower(), (alku1 + loppu2).lower()
 
+def arvo_numerot(lkm):
+    """Arpoo lkm satunnaista numeroa 0-9 väliltä."""
+    cryptogen = random.SystemRandom()
+    return [cryptogen.randint(0, 9) for _ in range(lkm)]
+
 
 # --- Käyttöliittymä (UI) ---
 
@@ -165,8 +169,8 @@ if raakasanalista:
         st.stop()
 
     # --- Välilehdet ---
-    tab1, tab2, tab3 = st.tabs(
-        ["🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone"]
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["🚀 Generaattori", "🗣️ Tunniste-tila", "🤪 Muunnos-kone", "🎲 Luvut"]
     )
 
     with tab1:
@@ -185,7 +189,7 @@ if raakasanalista:
                 cols[1].caption(f"{len(e)} merk.")
 
     with tab2:
-        # Laajennetaan pituushaitaria (3-7 merkkiä)
+        # Laajennetaan pituushaitaria vähäsen (3-7 merkkiä)
         vaikeat_foneettiset = set("bcfgqwxzåäö")
         tunniste_lista = [
             s
@@ -252,6 +256,19 @@ if raakasanalista:
                 )
             else:
                 st.caption(f"Etsitty {yritykset} parin joukosta.")
+
+    with tab4:
+        st.subheader("Tunnusluku-kone")
+        st.write(
+            "Tuottaa toistaiseksi vain kuusimerkkisiä satunnaislukuja, jotka sopivat vaikkapa PIN-koodiksi."
+        )
+        lukusarja = arvo_numerot(6)
+        st.write(f"Arvotut numerot:, {' '.join(str(n) for n in lukusarja)}")
+
+        if st.button("Arvo uusi luku"):
+            lukusarja = arvo_numerot(6) 
+
+        st.code("".join(str(n) for n in lukusarja), language=None)
 
 st.markdown("---")
 st.markdown("© TV 2026-03-22 | Data: Kotus")
