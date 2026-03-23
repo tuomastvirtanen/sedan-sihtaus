@@ -260,10 +260,19 @@ if raakasanalista:
     with tab4:
         st.subheader("Tunnusluku-kone")
         st.write(
-            "Tuottaa toistaiseksi vain kuusimerkkisiä satunnaislukuja, jotka sopivat vaikkapa PIN-koodiksi."
+            "Nämä sovelutuvat vaikkapa PIN-koodiksi."
         )
-        lukusarja = arvo_numerot(6)
-        # st.write(f"Arvotut numerot:, {' '.join(str(n) for n in lukusarja)}")
+
+        # Lisätään valitsin pituudelle
+        n_pituus = st.slider("Numeroiden määrä", 4, 16, 6)
+
+        if st.button("Arvo uusi luku"):
+            uusi_luku = "".join(str(n) for n in arvo_numerot(n_pituus))
+            st.code(uusi_luku, language=None)
+        else:
+            # Näytetään oletusluku heti kättelyssä
+            oletus_luku = "".join(str(n) for n in arvo_numerot(n_pituus))
+            st.code(oletus_luku, language=None)
 
         if st.button("Arvo uusi luku"):
             lukusarja = arvo_numerot(6) 
