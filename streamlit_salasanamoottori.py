@@ -259,25 +259,21 @@ if raakasanalista:
 
     with tab4:
         st.subheader("Tunnusluku-kone")
-        st.write(
-            "Nämä sovelutuvat vaikkapa PIN-koodiksi."
-        )
-
-        # Lisätään valitsin pituudelle
-        n_pituus = st.slider("Numeroiden määrä", 4, 16, 6)
+        st.write("Tuottaa satunnaislukuja, jotka sopivat vaikkapa PIN-koodiksi.")
+        
+        # Lisätään valitsin pituudelle (vapaaehtoinen lisäys)
+        n_pituus = st.slider("Numeroiden määrä", 4, 12, 6, key="n_slider")
 
         if st.button("Arvo uusi luku", key="gen_luku"):
-            uusi_luku = "".join(str(n) for n in arvo_numerot(n_pituus))
-            st.code(uusi_luku, language=None)
+            # Arvotaan luku vain kun nappia painetaan
+            uusi_sarja = arvo_numerot(n_pituus)
+            luku_str = "".join(str(n) for n in uusi_sarja)
+            st.code(luku_str, language=None)
         else:
-            # Näytetään oletusluku heti kättelyssä
-            oletus_luku = "".join(str(n) for n in arvo_numerot(n_pituus))
-            st.code(oletus_luku, language=None)
-
-        if st.button("Arvo uusi luku"):
-            lukusarja = arvo_numerot(6) 
-
-        st.code("".join(str(n) for n in lukusarja), language=None)
+            # Näytetään jokin oletusluku, jotta sivu ei ole tyhjä alussa
+            oletus_sarja = arvo_numerot(n_pituus)
+            luku_str = "".join(str(n) for n in oletus_sarja)
+            st.code(luku_str, language=None)
 
 st.markdown("---")
 st.markdown("© TV 2026-03-22 | Data: Kotus")
