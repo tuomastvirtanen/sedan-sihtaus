@@ -1,46 +1,77 @@
-# 🔐 Sedan-sihtaus: Salalausegeneraattori
+# Sedan-sihtaus: salalausegeneraattori
 
-Tämä on Python-pohjainen työkalu vahvojen, suomenkielisten salalauseiden generointiin. Ohjelma hyödyntää Kotuksen nykysuomen sanalistaa ja tarjoaa matemaattisesti perustellun arvion salasanan murtovarmuudesta (entropia). Ohjelman nimi, sedan-sihtaus, on ensimmäisen kehitysversion ensimmäinen arvottu sanapari. 
+Python-ohjelma suomenkielisten salalauseiden generointiin. Ohjelma käyttää Kotuksen nykysuomen sanalistaa ja laskee generoiduille salalauseille teoreettisen entropian sanaston koon ja tehtyjen valintojen perusteella.
 
-## 🌍 Selainversio
-Sovellus on ajettavissa suoraan selaimessa (myös mobiilissa):
-👉 **[salasanamoottori.streamlit.app](https://salasanamoottori.streamlit.app)**
+Nimi **sedan-sihtaus** on ohjelman ensimmäisen kehitysversion ensimmäinen satunnaisesti generoitu sanapari.
 
----
+## Selainversio
 
-## ✨ Ominaisuudet
-* **Dynaaminen sanasto**: Hyödyntää Kotuksen nykysuomen sanalistaa (sisältää n. 94 000 sanaa).
-* **Generaattori (🚀)**: Luo nykysuomen sanalistan perusteella halutun vahvuisen salauslauseen
-* **Tunniste-tila (🗣️)**: Generoi foneettisesti selkeitä ja lyhyitä sanoja (2–5 kpl), jotka on helppo sanoa ääneen.
-* **Vaikeusasteen hienosäätö**: Suodata sanoja kirjoitus- ja ääntämisvaikeuden perusteella (0–100).
-* **Entropialaskenta**: Laskee teoreettisen bitin määrän (esim. 128 bittiä vastaa AES-standardin perustasoa).
-* **Moderni teknologia**: Selainversio toteutettu Streamlitillä, CLI-versio optimoitu `uv`-työkalulle.
-* **Täysi turvallisuus**: Sovellus on palvelimeton; mitään tietoja ei tallenneta.
-* **PIN-koodit (🎲)**: Saat halutun mittaisia PIN-koodeja moneen tarkoitukseen.
-* **Sananmuunnokset (🤪)**: Ensimmäinen kehitysversio sananmuunnoskoneesta, molempien sanojen tulee löytyä Kotus-sanastosta. 
----
+Ohjelmaa voi käyttää selaimessa:
 
-## 📊 Mitä bitit tarkoittavat käytännössä?
+**https://salasanamoottori.streamlit.app**
 
-Entropia kuvaa sitä, kuinka monta kertaa hyökkääjän on keskimäärin kokeiltava eri vaihtoehtoja ennen kuin salasana murtuu.
-
-| Entropia (bittiä) | Vastaa suunnilleen... | Turvataso (Offline-hyökkäys) |
-| :--- | :--- | :--- |
-| **~20–30 b** | 5 satunnaista merkkiä tai 1 yleinen sana | **Heikko:** Murtuu sekunneissa millä tahansa laitteella. |
-| **~45 b** | 8 merkkiä (pieniä/isoja/numeroita) | **Rajatapaus:** Murtuu tunneissa tehokkaalla näytönohjaimella. |
-| **~60 b** | **4 suomenkielistä sanaa** | **Vahva:** Vaatii jo huomattavaa laskentatehoa ja aikaa. |
-| **~80 b** | **5–6 suomenkielistä sanaa** | **Sotilastaso:** Murtaminen on käytännössä mahdotonta ilman supertietokonetta. |
-| **128 b+** | **8–10 suomenkielistä sanaa** | **AES-taso:** Matemaattisesti murtamaton universumin eliniän aikana. |
-
-
+Selainkäyttöliittymä on toteutettu Streamlitillä.
 
 ---
 
-## 🛠️ Paikallinen käyttö (CLI)
+## Toiminnot
 
-Voit käyttää sovellusta myös paikallisesti omalla koneella. Ohjelma on optimoitu käytettäväksi [uv](https://github.com/astral-sh/uv)-työkalulla.
+* **Salalausegeneraattori**
+  Generoi Kotuksen nykysuomen sanalistasta satunnaisia sanoja haluttuun entropiatasoon asti.
 
-### Ajo komennolla:
+* **Tunniste-tila**
+  Generoi 2–5 lyhyttä ja foneettisesti selkeää sanaa esimerkiksi suullisesti välitettäviksi tunnisteiksi.
+
+* **Sanaston suodatus**
+  Sanoja voidaan rajata kirjoitus- ja ääntämisvaikeuden perusteella asteikolla 0–100.
+
+* **Entropialaskenta**
+  Laskee generoidun salalauseen teoreettisen entropian bitteinä käytettävissä olevan sanaston ja satunnaisten valintojen määrän perusteella.
+
+* **PIN-koodit**
+  Generoi halutun pituisia satunnaisia numerokoodeja.
+
+* **Sananmuunnokset**
+  Kokeellinen toiminto kahden Kotuksen sanalistasta löytyvän sanan muuntamiseen.
+
+---
+
+## Entropia
+
+Jos jokainen sana valitaan toisista valinnoista riippumatta ja tasaisesti sanastosta, yhden sanan tuottama entropia on
+
+```text
+log2(sanaston koko)
+```
+
+ja `n` sanan salalauseen entropia
+
+```text
+n × log2(sanaston koko)
+```
+
+Esimerkiksi 16 bitin entropia tarkoittaa noin `2^16` mahdollista yhdistelmää ja 64 bitin entropia noin `2^64` yhdistelmää.
+
+Laskettu arvo kuvaa generaattorin tuottaman salalauseen **teoreettista entropiaa**. Se ei sellaisenaan kerro, kuinka kauan tietyn salasanan murtaminen kestää. Käytännön murtamisnopeuteen vaikuttavat muun muassa käytetty salasanatiiviste, sen asetukset, hyökkääjän käytettävissä oleva laskentateho sekä se, tietääkö hyökkääjä salasanan generointimenetelmän.
+
+Entropialaskenta olettaa, että sanat on valittu ohjelman satunnaisgeneraattorilla. Käyttäjän itse valitsemaan tai muokkaamaan salalauseeseen samaa laskentaa ei voida suoraan soveltaa.
+
+---
+
+## Sanasto
+
+Ohjelma käyttää **Kotuksen nykysuomen sanalistaa**, jossa on noin 94 000 hakusanaa.
+
+Generoinnissa käytettävän sanaston koko voi olla tätä pienempi, jos sanoja suodatetaan esimerkiksi pituuden tai vaikeusasteen perusteella. Entropia lasketaan siitä sanajoukosta, josta satunnainen valinta todellisuudessa tehdään.
+
+---
+
+## Paikallinen käyttö
+
+Ohjelmaa voi ajaa komentoriviltä Pythonilla. Projekti on määritetty toimimaan myös `uv`:n kanssa.
+
 ```bash
 uv run salasanamoottori.py
 ```
+
+Selainversio käyttää Streamlitiä.
